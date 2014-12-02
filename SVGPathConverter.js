@@ -114,26 +114,41 @@ function browseArrayItem(item) {
         delete obj.polyline;
       }
 
+      if(i === "polygon") {
+        if(obj.path === undefined) {
+          obj.path = [];
+        }
+        if (item[i] instanceof Array) {
+          for(counter in item[i]) {
+            newPath =  transformPolygonToPath(item[i][counter]);
+            obj.path.push(newPath);
+          }
+        } else {
+          newPath = transformPolygonToPath(item[i]);
+          obj.path.push(newPath);
+        }
+        delete obj.polygon;
+      }
+
       if(i === "rect") {
-        // TODO
-        //if(obj.path === undefined) {
-          //obj.path = [];
-        //}
-        //if(obj.path instanceof Object) {
-          //current = obj.path;
-          //obj.path = [];
-          //obj.path.push(current);
-        //}
-        //if (item[i] instanceof Array) {
-          //for(counter in item[i]) {
-            //newPath =  transformRectToPath(item[i][counter]);
-            //obj.path.push(newPath);
-          //}
-        //} else {
-          //newPath = transformRectToPath(item[i]);
-          //obj.path.push(newPath);
-        //}
-        //delete obj.rect;
+        if(obj.path === undefined) {
+          obj.path = [];
+        }
+        if(obj.path instanceof Object) {
+          current = obj.path;
+          obj.path = [];
+          obj.path.push(current);
+        }
+        if (item[i] instanceof Array) {
+          for(counter in item[i]) {
+            newPath =  transformRectToPath(item[i][counter]);
+            obj.path.push(newPath);
+          }
+        } else {
+          newPath = transformRectToPath(item[i]);
+          obj.path.push(newPath);
+        }
+        delete obj.rect;
       }
 
     }
@@ -183,8 +198,16 @@ function transformLineToPath(element) {
 }
 
 function transformRectToPath(element) {
-  var newElement = {};
+  var newElement = {},
+    x = parseFloat(element.x) || 0,
+    y = parseFloat(element.y) || 0,
+    width = parseFloat(element.width) || 0,
+    height = parseFloat(element.height) || 0;
   newElement.debug = 'modified-rect';
+  newElement.d  = 'M' + x + ' ' + y + ' ';
+  newElement.d += 'L' + (x + width) + ' ' + y + ' ';
+  newElement.d += 'L' + (x + width) + ' ' + (y + height) + ' ';
+  newElement.d += 'L' + x + ' ' + (y + height) + ' Z';
   return newElement;
 }
 
@@ -203,6 +226,12 @@ function transformPolylineToPath(element) {
   if(element.fill)
     newElement.fill = element.fill;
 
+  return newElement;
+}
+
+function transformPolygonToPath(element) {
+  var newElement = transformPolylineToPath(element);
+  newElement.debug = 'modified-polygon';
   return newElement;
 }
 
